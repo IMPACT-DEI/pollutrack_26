@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:pollutrack_26/screens/exposure.dart';
+import 'package:pollutrack_26/screens/exposureStateless.dart';
 
 class Login extends StatelessWidget {
   Login({Key? key}) : super(key: key);
@@ -75,12 +78,27 @@ class Login extends StatelessWidget {
                     if(userController.text == 'admin' && passwordController.text == '123456') {
                       // If correct, navigate to the Exposure screen (pushReplacement to remove the login screen from the stack)
                       // With pushReplacement you won't see the arrow to come back to login page, with push it will appear
+                      
+                      // NAVIGATOR IF EXPOSURE IS STATEFUL
+                      /*
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                           builder: (context) =>  const Exposure(),
                         ),
                       );
+                      */
+
+                    // NAVIGATOR IF EXPOSURE IS STATELESS (with random exposure value and current date)
+                      Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ExposureStateless(
+                          currentDate: DateTime.now(),
+                          exposure: Random().nextDouble() * 100,
+                        ),
+                      ),
+                    );
                       } else {
                         // If incorrect, show a SnackBar with an error message
                         ScaffoldMessenger.of(context)
