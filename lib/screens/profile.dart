@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pollutrack_26/screens/exposure.dart';
 
 class Profile extends StatelessWidget {
   Profile({super.key});
@@ -92,7 +91,6 @@ class Profile extends StatelessWidget {
                     // Pop the current screen and return the name and surname to the Exposure Page
                     // Navigator.pop(context, 'Nome Cognome');
                     Navigator.pop(context, '${_nameController.text} ${_surnameController.text}');
-                    //Navigator.push(context, MaterialPageRoute(builder:  (context) => Exposure(name: '${_nameController.text} ${_surnameController.text}',),),);
                   },
                 ),
           ),

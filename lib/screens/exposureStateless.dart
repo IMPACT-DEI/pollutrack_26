@@ -17,7 +17,7 @@ class ExposureStateless extends StatelessWidget {
     //required this.name
   });
 
-  // funzione che "simula" lo state cambiando pagina con nuovi dati
+  // function that simulates the change of state navigating to the same screen with different data
   void _changeDate(BuildContext context, String direction) {
     DateTime newDate;
 
@@ -65,7 +65,7 @@ class ExposureStateless extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.w500, fontSize: 25),
                 ),
 
-                /// DATE SELECTOR
+                // DATE SELECTOR
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -139,13 +139,13 @@ class ExposureStateless extends StatelessWidget {
         ),
       ),
 
-      /// BOTTOM BAR
+      // BOTTOM BAR
       bottomNavigationBar: BottomAppBar(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
 
-            /// LOGOUT
+            // LOGOUT
             IconButton(
               icon: const Icon(Icons.logout),
               onPressed: () {
@@ -156,7 +156,7 @@ class ExposureStateless extends StatelessWidget {
               },
             ),
 
-            /// PROFILE
+            // PROFILE
             IconButton(
               icon: const Icon(Icons.person),
               onPressed: () async {
