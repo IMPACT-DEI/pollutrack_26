@@ -4,8 +4,10 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:pollutrack_26/providers/exposure_provider.dart';
 import 'package:pollutrack_26/screens/profile.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-//Exposure screen is stateless because all the logic is handled by the provider. it just listens to the changes of the provider and rebuilds when necessary
+//Exposure screen is stateless because all the logic is handled by the provider. 
+//it just listens to the changes of the provider and rebuilds when necessary
 class Exposure extends StatelessWidget {
   const Exposure({super.key});
 
@@ -30,14 +32,28 @@ class Exposure extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          "Hello, User",
-                          style: Theme.of(context).textTheme.headlineMedium,
+                        FutureBuilder(
+                          future: SharedPreferences.getInstance(),
+                          builder: ((context, snapshot) {
+                            if(snapshot.hasData){
+                              final sp = snapshot.data as SharedPreferences;
+                              if(sp.getString('name') == null){
+                                return Text("Hello, User", style: TextStyle(fontSize: 36));
+                              }
+                              else{
+                                  final name = sp.getString('name');
+                                  return Text("Hello, $name", style: TextStyle(fontSize: 36));
+                              }
+                            }
+                            else{
+                              return CircularProgressIndicator();
+                            }
+                            
+                          }),
                         ),
                         IconButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
+                          onPressed: () async {
+                            await Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) => Profile(),
                               ),

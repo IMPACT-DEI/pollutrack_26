@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pollutrack_26/screens/login.dart';
+import 'package:pollutrack_26/providers/exposure_provider.dart';
+import 'package:pollutrack_26/screens/splash.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,18 +13,20 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        colorScheme: ColorScheme.fromSeed(
-            surface: const Color(0xFFFFFFFF),
-            primary: const Color(0xFF2b5a4d),
-            secondary: const Color(0xFFedf1f1),
-            seedColor: const Color(0xFF2b5a4d)),
-        useMaterial3: true,
+    return ChangeNotifierProvider(create:(context) => ExposureProvider(),
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          // This is the theme of your application.
+          colorScheme: ColorScheme.fromSeed(
+              surface: const Color(0xFFFFFFFF),
+              primary: const Color(0xFF2b5a4d),
+              secondary: const Color(0xFFedf1f1),
+              seedColor: const Color(0xFF2b5a4d)),
+          useMaterial3: true,
+        ),
+        home: Splash(),
       ),
-      home: Login(),
     );
   }
 }
