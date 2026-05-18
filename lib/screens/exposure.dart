@@ -126,7 +126,7 @@ class Exposure extends StatelessWidget {
                         bottom: 4,
                       ),
                       child: Consumer<ExposureProvider>(
-                        builder: (context, value, child) => value.isLoading
+                        builder: (context, value, child) => value.exposure == -1
                             ? SizedBox(
                                 height: 80,
                                 child: Center(

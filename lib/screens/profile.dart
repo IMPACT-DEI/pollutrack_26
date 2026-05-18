@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:pollutrack_26/screens/login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
-// Profile screen became stateless because now we set the profile data in the shared preferences during the onboarding process, 
-//so we can just read the data from the shared preferences and display it without needing to update the state of the screen. 
-// One can add the possibility to change the profile data from here or by allowing the user to go back to the 
+// Profile screen became stateless because now we set the profile data in the shared preferences during the onboarding process,
+//so we can just read the data from the shared preferences and display it without needing to update the state of the screen.
+// One can add the possibility to change the profile data from here or by allowing the user to go back to the
 //onboarding screen and change the data there, but for now we just display the data that was set during the onboarding process.
 
 class Profile extends StatelessWidget {
@@ -22,10 +21,20 @@ class Profile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Profile', style: TextStyle(fontSize: 36, color: Colors.black))),
+      appBar: AppBar(
+        title: Text(
+          'Profile',
+          style: TextStyle(fontSize: 36, color: Colors.black),
+        ),
+      ),
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.only(left: 12.0, right: 12.0, top: 40, bottom: 20),
+          padding: EdgeInsets.only(
+            left: 12.0,
+            right: 12.0,
+            top: 40,
+            bottom: 20,
+          ),
           child: FutureBuilder<Map<String, String?>>(
             future: _loadProfileData(),
             builder: (context, snapshot) {
@@ -36,7 +45,10 @@ class Profile extends StatelessWidget {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Info about yourself", style: TextStyle(fontSize: 24, color: Colors.black45)),
+                  Text(
+                    "Info about yourself",
+                    style: TextStyle(fontSize: 24, color: Colors.black45),
+                  ),
                   SizedBox(height: 20),
                   _buildProfileData('Name', data['name']),
                   _buildProfileData('Surname', data['surname']),
@@ -49,9 +61,10 @@ class Profile extends StatelessWidget {
                         final sp = await SharedPreferences.getInstance();
                         await sp.remove('username');
                         await sp.remove('password');
-                        Navigator.pushReplacement(
+                        Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (context) => Login()),
+                          (_) => false,
                         );
                       },
                       child: Text('Logout'),
@@ -75,7 +88,9 @@ class Profile extends StatelessWidget {
           Expanded(
             child: Text(
               value ?? '/',
-              style: TextStyle(color: value == null ? Colors.red : Colors.black),
+              style: TextStyle(
+                color: value == null ? Colors.red : Colors.black,
+              ),
             ),
           ),
         ],
