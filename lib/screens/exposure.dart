@@ -3,10 +3,11 @@ import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:pollutrack_26/providers/exposure_provider.dart';
 import 'package:pollutrack_26/screens/profile.dart';
+import 'package:pollutrack_26/widgets/timeseries_plot.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-//Exposure screen is stateless because all the logic is handled by the provider. 
+//Exposure screen is stateless because all the logic is handled by the provider.
 //it just listens to the changes of the provider and rebuilds when necessary
 class Exposure extends StatelessWidget {
   const Exposure({super.key});
@@ -35,20 +36,23 @@ class Exposure extends StatelessWidget {
                         FutureBuilder(
                           future: SharedPreferences.getInstance(),
                           builder: ((context, snapshot) {
-                            if(snapshot.hasData){
+                            if (snapshot.hasData) {
                               final sp = snapshot.data as SharedPreferences;
-                              if(sp.getString('name') == null){
-                                return Text("Hello, User", style: TextStyle(fontSize: 36));
+                              if (sp.getString('name') == null) {
+                                return Text(
+                                  "Hello, User",
+                                  style: TextStyle(fontSize: 36),
+                                );
+                              } else {
+                                final name = sp.getString('name');
+                                return Text(
+                                  "Hello, $name",
+                                  style: TextStyle(fontSize: 36),
+                                );
                               }
-                              else{
-                                  final name = sp.getString('name');
-                                  return Text("Hello, $name", style: TextStyle(fontSize: 36));
-                              }
-                            }
-                            else{
+                            } else {
                               return CircularProgressIndicator();
                             }
-                            
                           }),
                         ),
                         IconButton(
@@ -125,8 +129,10 @@ class Exposure extends StatelessWidget {
                         builder: (context, value, child) => value.isLoading
                             ? SizedBox(
                                 height: 80,
-                                child:
-                                    Center(child: const CircularProgressIndicator.adaptive()),
+                                child: Center(
+                                  child:
+                                      const CircularProgressIndicator.adaptive(),
+                                ),
                               )
                             : Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -181,26 +187,80 @@ class Exposure extends StatelessWidget {
                     ),
                     const SizedBox(height: 30),
                     Consumer<ExposureProvider>(
-                      builder: (context, value, child) => AspectRatio(
-                        aspectRatio: 16 / 9,
-                        child: value.isLoading
-                            ? CircularProgressIndicator.adaptive()
-                            : Container(
-                                color: Colors.grey.withValues(alpha: 0.2),
-                                child: Center(
-                                  child: Text(
-                                    "Graph coming soon!",
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.headlineSmall,
-                                  ),
-                                ),
-                              ),
+                      builder: (context, provider, child) => Column(
+                        children: [
+                          if (provider.heartRates.isEmpty &&
+                              provider.pm25.isEmpty)
+                            const Text(
+                              'Loading data...',
+                              style: TextStyle(fontSize: 16),
+                              textAlign: TextAlign.center,
+                            )
+                          else if (provider.heartRates.isEmpty)
+                            const Text(
+                              'Only PM2.5 data available (mg/m^3)',
+                              style: TextStyle(fontSize: 16),
+                              textAlign: TextAlign.center,
+                            )
+                          else if (provider.pm25.isEmpty)
+                            const Text(
+                              'Only HR data available (beats/min)',
+                              style: TextStyle(fontSize: 16),
+                              textAlign: TextAlign.center,
+                            )
+                          else
+                            const Text(
+                              'Inhalation Rate (mg/min)',
+                              style: TextStyle(fontSize: 16),
+                              textAlign: TextAlign.center,
+                            ),
+                          const SizedBox(height: 10),
+                          AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: _buildTrendChart(provider, context),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTrendChart(ExposureProvider provider, BuildContext context) {
+    if (provider.heartRates.isEmpty && provider.pm25.isEmpty) {
+      return const Center(child: CircularProgressIndicator.adaptive());
+    }
+
+    if (provider.heartRates.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: CustomPlotExposure(
+          pm25Data: provider.pm25,
+          selectedDate: provider.showDate,
+        ),
+      );
+    }
+
+    if (provider.pm25.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: CustomPlotHR(
+          hrData: provider.heartRates,
+          selectedDate: provider.showDate,
+        ),
+      );
+    }
+
+    return Container(
+      color: Colors.grey.withValues(alpha: 0.2),
+      child: Center(
+        child: Text(
+          "Exposure graph coming soon!",
+          style: Theme.of(context).textTheme.headlineSmall,
         ),
       ),
     );
