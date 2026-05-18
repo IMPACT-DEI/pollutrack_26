@@ -1,101 +1,84 @@
 import 'package:flutter/material.dart';
+import 'package:pollutrack_26/screens/login.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+
+// Profile screen became stateless because now we set the profile data in the shared preferences during the onboarding process, 
+//so we can just read the data from the shared preferences and display it without needing to update the state of the screen. 
+// One can add the possibility to change the profile data from here or by allowing the user to go back to the 
+//onboarding screen and change the data there, but for now we just display the data that was set during the onboarding process.
 
 class Profile extends StatelessWidget {
-  Profile({super.key});
-
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _surnameController = TextEditingController();
+  Future<Map<String, String?>> _loadProfileData() async {
+    final sp = await SharedPreferences.getInstance();
+    return {
+      'name': sp.getString('name'),
+      'surname': sp.getString('surname'),
+      'gender': sp.getString('gender'),
+      'dob': sp.getString('dob'),
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //appBar: AppBar(), appBar adds the go back arrow
+      appBar: AppBar(title: Text('Profile', style: TextStyle(fontSize: 36, color: Colors.black))),
       body: SafeArea(
         child: Padding(
-          padding:
-               EdgeInsets.only(left: 12.0, right: 12.0, top: 60, bottom: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Profile',
-                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 25),
-              ),
-              SizedBox(
-                height: 5,
-              ),
-              Text("Info about you and your preferences",
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.black45,
-                  )),
-              SizedBox(
-                height: 20,
-              ),
-              Text(
-                "Account",
-                style: TextStyle(fontSize: 16),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              TextField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Name'
-                ),
-                ),
-                const SizedBox(
-                height: 20,
-              ),
-              TextField(
-                controller: _surnameController,
-                decoration: const InputDecoration(
-                  labelText: 'Surname'
-                ),
-                ),
-              const SizedBox(
-                height: 20,
-              ),
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "About",
-                      style: TextStyle(fontSize: 16),
+          padding: EdgeInsets.only(left: 12.0, right: 12.0, top: 40, bottom: 20),
+          child: FutureBuilder<Map<String, String?>>(
+            future: _loadProfileData(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return Center(child: CircularProgressIndicator());
+              }
+              final data = snapshot.data!;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Info about yourself", style: TextStyle(fontSize: 24, color: Colors.black45)),
+                  SizedBox(height: 20),
+                  _buildProfileData('Name', data['name']),
+                  _buildProfileData('Surname', data['surname']),
+                  _buildProfileData('Gender', data['gender']),
+                  _buildProfileData('Date of Birth', data['dob']),
+                  SizedBox(height: 30),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        final sp = await SharedPreferences.getInstance();
+                        await sp.remove('username');
+                        await sp.remove('password');
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => Login()),
+                        );
+                      },
+                      child: Text('Logout'),
                     ),
-                    Text(
-                      "Pollutrack aims to improve the consciousness of the user to the air pollutants issue. The user can track the amount of pollutants they has been exposed to during the day and learn useful information about them.",
-                      style: TextStyle(
-                          
-                          fontSize: 14, color: Colors.black.withOpacity(0.4)),
-                    ),
-                    Align(
-                      alignment: Alignment.center,
-                      child: Text("version 2.0.0"),
-                    )
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Align(
-                alignment: Alignment.center,
-                child: IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () {
-                    // Pop the current screen and return the name and surname to the Exposure Page
-                    // Navigator.pop(context, 'Nome Cognome');
-                    Navigator.pop(context, '${_nameController.text} ${_surnameController.text}');
-                  },
-                ),
+                  ),
+                ],
+              );
+            },
           ),
-            ])
         ),
+      ),
+    );
+  }
+
+  Widget _buildProfileData(String title, String? value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        children: [
+          Text('$title: ', style: TextStyle(fontWeight: FontWeight.bold)),
+          Expanded(
+            child: Text(
+              value ?? '/',
+              style: TextStyle(color: value == null ? Colors.red : Colors.black),
+            ),
+          ),
+        ],
       ),
     );
   }
