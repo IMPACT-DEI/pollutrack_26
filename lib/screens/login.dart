@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pollutrack_26/screens/exposure.dart';
+import 'package:pollutrack_26/screens/home.dart';
 import 'package:pollutrack_26/screens/onboarding.dart';
-import 'package:pollutrack_26/utils/impact.dart';
+import 'package:pollutrack_26/services/impact.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatelessWidget {
@@ -89,7 +90,7 @@ class Login extends StatelessWidget {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const Exposure(),
+                            builder: (context) => const Home(),
                           ),
                         );
                       }
