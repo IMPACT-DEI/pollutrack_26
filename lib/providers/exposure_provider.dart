@@ -1,11 +1,11 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:pollutrack_26/model/inhalation_rate.dart';
 import 'package:pollutrack_26/model/pm_25.dart';
 import 'package:pollutrack_26/model/heart_rate.dart';
 import 'package:pollutrack_26/services/csvData.dart';
 import 'package:pollutrack_26/services/impact.dart';
 import 'package:pollutrack_26/services/purpleair.dart';
+import 'package:pollutrack_26/utils/algorithm.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // this is the change notifier. it will manage all the logic of the exposure page: fetching the correct data from the online services
@@ -13,6 +13,7 @@ class ExposureProvider extends ChangeNotifier {
   // data to be used by the UI
   List<HR> heartRates = [];
   List<PM25> pm25 = [];
+  List<InhalationRate> inalhation = [];
   double exposure = -1;
   bool isLoading = false;
 
@@ -38,6 +39,8 @@ class ExposureProvider extends ChangeNotifier {
     heartRates = await impact.getHRData(showDate);
 
     final sp = await SharedPreferences.getInstance();
+    final String gender = sp.getString('gender') ?? 'male';
+    final Algorithm algorithm = Algorithm(gender == 'male' ? 1 : 0);
     final String apiKey = sp.getString('apiKey') ?? '';
 
     if (apiKey.isEmpty) {
@@ -47,6 +50,14 @@ class ExposureProvider extends ChangeNotifier {
       List<Map<String, dynamic>> csvData = await getCsvDataByDate(showDate);
       exposureListA = getPM(csvData, 'AirPredict-Padova-Mortise A');
       timeStamp = getTimeStamp(csvData, 'DateTime');
+      // adjust the timestamp to the correct day
+      timeStamp = timeStamp.map(
+        (e) => e.copyWith(
+          year: showDate.year,
+          month: showDate.month,
+          day: showDate.day,
+        ),
+      ).toList();
 
       pm25 = List.generate(
         timeStamp.length,
@@ -68,8 +79,20 @@ class ExposureProvider extends ChangeNotifier {
       pm25.sort((a, b) => a.timestamp.compareTo(b.timestamp));
     }
 
-    print('Got data for $showDate: HR: ${heartRates.length}, PM2.5: ${pm25.length}');
-    exposure = Random().nextDouble() * 100;
+    print(
+      'Got data for $showDate: HR: ${heartRates.length}, PM2.5: ${pm25.length}',
+    );
+
+    // calculate the exposure using the algorithm and then notify the ui to build
+    var vent = algorithm.getVentilationRate(heartRates);
+
+    inalhation = algorithm.getInhalationRate(vent, pm25);
+    exposure = inalhation.isNotEmpty
+        ? inalhation.map((e) => e.value).reduce((a, b) => a + b) *
+              100 /
+              4384.8 // value for 70bpm at pm2.5 of 25 (EU threshold)
+        : 0;
+
     notifyListeners();
   }
 

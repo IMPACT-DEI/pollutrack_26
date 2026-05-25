@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:pollutrack_26/model/heart_rate.dart';
+import 'package:pollutrack_26/model/inhalation_rate.dart';
 import 'package:pollutrack_26/model/pm_25.dart';
 
 class TimeSeriesPoint {
@@ -200,8 +201,8 @@ class CustomPlotHR extends StatelessWidget {
   }
 }
 
-class CustomPlotExposure extends StatelessWidget {
-  const CustomPlotExposure({
+class CustomPlotPM extends StatelessWidget {
+  const CustomPlotPM({
     super.key,
     required this.pm25Data,
     required this.selectedDate,
@@ -223,6 +224,34 @@ class CustomPlotExposure extends StatelessWidget {
       points: points,
       lineColor: const Color.fromARGB(255, 2, 21, 96),
       emptyMessage: 'No PM2.5 data available',
+      valueDecimals: 2,
+    );
+  }
+}
+
+class CustomPlotExposure extends StatelessWidget {
+  const CustomPlotExposure({
+    super.key,
+    required this.exposureData,
+    required this.selectedDate,
+  });
+
+  final List<InhalationRate> exposureData;
+  final DateTime selectedDate;
+
+  @override
+  Widget build(BuildContext context) {
+    final points = filterPointsByDay(
+      points: exposureData
+          .map((e) => TimeSeriesPoint(timestamp: e.timestamp, value: e.value))
+          .toList(),
+      selectedDate: selectedDate,
+    );
+
+    return TimeSeriesPlot(
+      points: points,
+      lineColor: const Color.fromARGB(255, 2, 21, 96),
+      emptyMessage: 'No exposure data available',
       valueDecimals: 2,
     );
   }

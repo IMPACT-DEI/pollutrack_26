@@ -238,7 +238,7 @@ class Exposure extends StatelessWidget {
     if (provider.heartRates.isEmpty) {
       return Padding(
         padding: const EdgeInsets.all(8.0),
-        child: CustomPlotExposure(
+        child: CustomPlotPM(
           pm25Data: provider.pm25,
           selectedDate: provider.showDate,
         ),
@@ -255,13 +255,11 @@ class Exposure extends StatelessWidget {
       );
     }
 
-    return Container(
-      color: Colors.grey.withValues(alpha: 0.2),
-      child: Center(
-        child: Text(
-          "Exposure graph coming soon!",
-          style: Theme.of(context).textTheme.headlineSmall,
-        ),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: CustomPlotExposure(
+        exposureData: provider.inalhation,
+        selectedDate: provider.showDate,
       ),
     );
   }
